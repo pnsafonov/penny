@@ -8,8 +8,8 @@ func DefSet(arg string) (map[string]string, error) {
 		return defaultSet, nil
 	}
 
-	for _, pair := range strings.Split(arg, typeSep) {
-		segs := strings.Split(pair, keyValueSep)
+	for _, pair := range strings.Split(arg, "@") {
+		segs := strings.Split(pair, "#")
 		if len(segs) != 2 {
 			return nil, &errBadTypeArgs{Arg: arg, Message: "Type=default expected"}
 		}

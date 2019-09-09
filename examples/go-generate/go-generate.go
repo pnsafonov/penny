@@ -7,6 +7,10 @@ import "github.com/cheekybits/genny/generic"
 type KeyType generic.Type
 type ValueType generic.Type
 
+func GetDefault() KeyType {
+	return KeyType(nil)
+}
+
 type KeyTypeValueTypeMap map[KeyType]ValueType
 
 func NewKeyTypeValueTypeMap() map[KeyType]ValueType {
