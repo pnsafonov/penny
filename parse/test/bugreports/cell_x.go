@@ -1,11 +1,11 @@
 package bugreports
 
-import "github.com/cheekybits/genny/generic"
+import "github.com/pnsafonov/penny/generic"
 
 // X is the type generic type used in tests
 type X generic.Type
 
-// CellX is result of generating code via genny for type X
+// CellX is result of generating code via penny for type X
 type CellX struct {
 	Value X
 }

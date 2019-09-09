@@ -3,7 +3,7 @@ package parse_test
 import (
 	"testing"
 
-	"github.com/cheekybits/genny/parse"
+	"github.com/pnsafonov/penny/parse"
 	"github.com/stretchr/testify/assert"
 )
 

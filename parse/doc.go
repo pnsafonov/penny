@@ -1,7 +1,7 @@
 // Package parse contains the generic code generation capabilities
-// that power genny.
+// that power penny.
 //
-//     genny gen "{types}"
+//     penny gen "{types}"
 //
 //     gen - generates type specific code (to stdout) from generic code (via stdin)
 //

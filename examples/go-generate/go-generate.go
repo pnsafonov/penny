@@ -1,8 +1,8 @@
 package gogenerate
 
-import "github.com/cheekybits/genny/generic"
+import "github.com/pnsafonov/penny/generic"
 
-//go:generate genny -in=$GOFILE -out=gen-$GOFILE gen "KeyType=string,int ValueType=string,int"
+//go:generate penny -in=$GOFILE -out=gen-$GOFILE gen "KeyType=string,int ValueType=string,int"
 
 type KeyType generic.Type
 type ValueType generic.Type

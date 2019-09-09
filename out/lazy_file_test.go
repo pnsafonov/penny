@@ -1,7 +1,7 @@
 package out_test
 
 import (
-	"github.com/cheekybits/genny/out"
+	"github.com/pnsafonov/penny/out"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"

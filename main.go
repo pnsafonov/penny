@@ -10,13 +10,13 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cheekybits/genny/out"
-	"github.com/cheekybits/genny/parse"
+	"github.com/pnsafonov/penny/out"
+	"github.com/pnsafonov/penny/parse"
 )
 
 /*
 
-  source | genny gen [-in=""] [-out=""] [-pkg=""] [-def=""] "KeyType=string,int ValueType=string,int"
+  source | penny gen [-in=""] [-out=""] [-pkg=""] [-def=""] "KeyType=string,int ValueType=string,int"
 
 */
 
@@ -115,7 +115,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, `usage: genny [{flags}] gen "{types}"
+	fmt.Fprintln(os.Stderr, `usage: penny [{flags}] gen "{types}"
 
 gen - generates type specific code from generic code.
 get <package/file> - fetch a generic template from the online library and gen it.
