@@ -62,6 +62,15 @@ func subTypeIntoComment(line, typeTemplate, specificType string) string {
 	return subbed
 }
 
+func subTypeIntoDefault(line, typeTemplate, defVal string) (string, bool) {
+	nilVal := typeTemplate + "(nil)"
+	if !strings.Contains(line, nilVal) {
+		return "", false
+	}
+	result := strings.Replace(line, nilVal, defVal, 1)
+	return result, true
+}
+
 // Does the heavy lifting of taking a line of our code and
 // sbustituting a type into there for our generic type
 func subTypeIntoLine(line, typeTemplate, specificType string) string {
@@ -89,7 +98,7 @@ func subTypeIntoLine(line, typeTemplate, specificType string) string {
 }
 
 // typeSet looks like "KeyType: int, ValueType: string"
-func generateSpecific(filename string, in io.ReadSeeker, typeSet map[string]string) ([]byte, error) {
+func generateSpecific(filename string, in io.ReadSeeker, typeSet map[string]string, defSet map[string]string) ([]byte, error) {
 
 	// ensure we are at the beginning of the file
 	in.Seek(0, os.SEEK_SET)
@@ -143,6 +152,11 @@ func generateSpecific(filename string, in io.ReadSeeker, typeSet map[string]stri
 
 		for t, specificType := range typeSet {
 			if strings.Contains(line, t) {
+				if defVal, ok := defSet[specificType]; ok {
+					if withDefLine, defOk := subTypeIntoDefault(line, t, defVal); defOk {
+						line = withDefLine
+					}
+				}
 				newLine := subTypeIntoLine(line, t, specificType)
 				line = newLine
 			}
@@ -171,14 +185,15 @@ func generateSpecific(filename string, in io.ReadSeeker, typeSet map[string]stri
 
 // Generics parses the source file and generates the bytes replacing the
 // generic types for the keys map with the specific types (its value).
-func Generics(filename, outputFilename, pkgName string, in io.ReadSeeker, typeSets []map[string]string) ([]byte, error) {
+func Generics(filename, outputFilename, pkgName string, in io.ReadSeeker, typeSets []map[string]string,
+	defSet map[string]string) ([]byte, error) {
 
 	totalOutput := header
 
 	for _, typeSet := range typeSets {
 
 		// generate the specifics
-		parsed, err := generateSpecific(filename, in, typeSet)
+		parsed, err := generateSpecific(filename, in, typeSet, defSet)
 		if err != nil {
 			return nil, err
 		}

@@ -16,7 +16,7 @@ import (
 
 /*
 
-  source | genny gen [-in=""] [-out=""] [-pkg=""] "KeyType=string,int ValueType=string,int"
+  source | genny gen [-in=""] [-out=""] [-pkg=""] [-def=""] "KeyType=string,int ValueType=string,int"
 
 */
 
@@ -36,6 +36,7 @@ func main() {
 		in      = flag.String("in", "", "file to parse instead of stdin")
 		out     = flag.String("out", "", "file to save output to instead of stdout")
 		pkgName = flag.String("pkg", "", "package name for generated files")
+		def		= flag.String("def", "", "default type value")
 		prefix  = "https://github.com/metabition/gennylib/raw/master/"
 	)
 	flag.Parse()
@@ -57,6 +58,10 @@ func main() {
 		setsArg = args[2]
 	}
 	typeSets, err := parse.TypeSet(setsArg)
+	if err != nil {
+		fatal(exitcodeInvalidTypeSet, err)
+	}
+	defSet, err := parse.DefSet(*def)
 	if err != nil {
 		fatal(exitcodeInvalidTypeSet, err)
 	}
@@ -83,7 +88,7 @@ func main() {
 		}
 		r.Body.Close()
 		br := bytes.NewReader(b)
-		err = gen(*in, outputFilename, *pkgName, br, typeSets, outWriter)
+		err = gen(*in, outputFilename, *pkgName, br, typeSets, defSet, outWriter)
 	} else if len(*in) > 0 {
 		var file *os.File
 		file, err = os.Open(*in)
@@ -91,7 +96,7 @@ func main() {
 			fatal(exitcodeSourceFileInvalid, err)
 		}
 		defer file.Close()
-		err = gen(*in, outputFilename, *pkgName, file, typeSets, outWriter)
+		err = gen(*in, outputFilename, *pkgName, file, typeSets, defSet, outWriter)
 	} else {
 		var source []byte
 		source, err = ioutil.ReadAll(os.Stdin)
@@ -99,7 +104,7 @@ func main() {
 			fatal(exitcodeStdinFailed, err)
 		}
 		reader := bytes.NewReader(source)
-		err = gen("stdin", outputFilename, *pkgName, reader, typeSets, outWriter)
+		err = gen("stdin", outputFilename, *pkgName, reader, typeSets, defSet, outWriter)
 	}
 
 	// do the work
@@ -143,12 +148,13 @@ func fatal(code int, a ...interface{}) {
 }
 
 // gen performs the generic generation.
-func gen(filename, outputFilename, pkgName string, in io.ReadSeeker, typesets []map[string]string, out io.Writer) error {
+func gen(filename, outputFilename, pkgName string, in io.ReadSeeker, typesets []map[string]string,
+	defSet map[string]string, out io.Writer) error {
 
 	var output []byte
 	var err error
 
-	output, err = parse.Generics(filename, outputFilename, pkgName, in, typesets)
+	output, err = parse.Generics(filename, outputFilename, pkgName, in, typesets, defSet)
 	if err != nil {
 		return err
 	}
