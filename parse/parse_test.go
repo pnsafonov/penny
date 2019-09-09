@@ -17,6 +17,7 @@ var tests = []struct {
 	pkgName        string
 	in             string
 	types          []map[string]string
+	defaults	   map[string]string
 
 	// expectations
 	expectedOut string
@@ -26,6 +27,7 @@ var tests = []struct {
 		filename:    "generic_queue.go",
 		in:          `test/queue/generic_queue.go`,
 		types:       []map[string]string{{"Something": "int"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/queue/int_queue.go`,
 	},
 	{
@@ -33,36 +35,42 @@ var tests = []struct {
 		pkgName:     "changed",
 		in:          `test/queue/generic_queue.go`,
 		types:       []map[string]string{{"Something": "int"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/queue/changed/int_queue.go`,
 	},
 	{
 		filename:    "generic_queue.go",
 		in:          `test/queue/generic_queue.go`,
 		types:       []map[string]string{{"Something": "float32"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/queue/float32_queue.go`,
 	},
 	{
 		filename:    "generic_simplemap.go",
 		in:          `test/multipletypes/generic_simplemap.go`,
 		types:       []map[string]string{{"KeyType": "string", "ValueType": "int"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/multipletypes/string_int_simplemap.go`,
 	},
 	{
 		filename:    "generic_simplemap.go",
 		in:          `test/multipletypes/generic_simplemap.go`,
 		types:       []map[string]string{{"KeyType": "interface{}", "ValueType": "int"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/multipletypes/interface_int_simplemap.go`,
 	},
 	{
 		filename:    "generic_simplemap.go",
 		in:          `test/multipletypes/generic_simplemap.go`,
 		types:       []map[string]string{{"KeyType": "*MyType1", "ValueType": "*MyOtherType"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/multipletypes/custom_types_simplemap.go`,
 	},
 	{
 		filename:    "generic_internal.go",
 		in:          `test/unexported/generic_internal.go`,
 		types:       []map[string]string{{"secret": "*myType"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/unexported/mytype_internal.go`,
 	},
 	{
@@ -72,6 +80,7 @@ var tests = []struct {
 			{"KeyType": "int", "ValueType": "string"},
 			{"KeyType": "float64", "ValueType": "bool"},
 		},
+		defaults:	 map[string]string{},
 		expectedOut: `test/multipletypesets/many_simplemaps.go`,
 	},
 	{
@@ -84,30 +93,35 @@ var tests = []struct {
 		filename:    "generic_digraph.go",
 		in:          `test/bugreports/generic_digraph.go`,
 		types:       []map[string]string{{"Node": "int"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/bugreports/int_digraph.go`,
 	},
 	{
 		filename:    "generic_new_and_make_slice.go",
 		in:          `test/bugreports/generic_new_and_make_slice.go`,
 		types:       []map[string]string{{"NumberType": "int"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/bugreports/int_new_and_make_slice.go`,
 	},
 	{
 		filename:    "cell_x.go",
 		in:          `test/bugreports/cell_x.go`,
 		types:       []map[string]string{{"X": "int"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/bugreports/cell_int.go`,
 	},
 	{
 		filename:    "interface_generic_type.go",
 		in:          `test/bugreports/interface_generic_type.go`,
 		types:       []map[string]string{{"GenericType": "uint8"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/bugreports/interface_uint8.go`,
 	},
 	{
 		filename:    "negation_generic.go",
 		in:          `test/bugreports/negation_generic.go`,
 		types:       []map[string]string{{"SomeThing": "string"}},
+		defaults:	 map[string]string{},
 		expectedOut: `test/bugreports/negation_string.go`,
 	},
 }
@@ -119,7 +133,7 @@ func TestParse(t *testing.T) {
 		test.in = contents(test.in)
 		test.expectedOut = contents(test.expectedOut)
 
-		bytes, err := parse.Generics(test.filename, test.outputFilename, test.pkgName, strings.NewReader(test.in), test.types)
+		bytes, err := parse.Generics(test.filename, test.outputFilename, test.pkgName, strings.NewReader(test.in), test.types, test.defaults)
 
 		// check the error
 		if test.expectedErr == nil {
