@@ -1,6 +1,9 @@
 package parse
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 const (
 	typeSep     = " "
@@ -9,6 +12,60 @@ const (
 	builtins    = "BUILTINS"
 	numbers     = "NUMBERS"
 )
+
+func getCasePair(str string) (result string, isUpper bool, ok bool) {
+	n := len(str)
+	if n == 0 {
+		return "", false, false
+	}
+	var r0 rune
+	for _, r := range str {
+		r0 = r
+		break
+	}
+	if r0 > unicode.MaxASCII {
+		return "", false, false
+	}
+	isUpper = unicode.IsUpper(r0)
+	b1 := []byte(str)
+	if isUpper {
+		b1[0] = byte(unicode.ToLower(r0))
+	} else {
+		b1[0] = byte(unicode.ToUpper(r0))
+	}
+	result = string(b1)
+	ok = true
+	return
+}
+
+func changeCase(str string, isUpper bool) (result string, ok bool) {
+	var r0 rune
+	for _, r := range str {
+		r0 = r
+		break
+	}
+	if r0 > unicode.MaxASCII {
+		return "", false
+	}
+	b1 := []byte(str)
+	if isUpper {
+		b1[0] = byte(unicode.ToLower(r0))
+	} else {
+		b1[0] = byte(unicode.ToUpper(r0))
+	}
+	result = string(b1)
+	ok = true
+	return
+}
+
+func isStringInSlice(strs []string, str string) bool {
+	for _, s := range strs {
+		if s == str {
+			return true
+		}
+	}
+	return false
+}
 
 // TypeSet turns a type string into a []map[string]string
 // that can be given to parse.Generics for it to do its magic.
@@ -32,13 +89,28 @@ func TypeSet(arg string) ([]map[string]string, error) {
 		key := segs[0]
 		keys = append(keys, key)
 		types[key] = make([]string, 0)
-		for _, t := range strings.Split(segs[1], valuesSep) {
+
+		key1, isUpper, ok1 := getCasePair(key)
+
+		seg1 := strings.Split(segs[1], valuesSep)
+		for _, t := range seg1 {
 			if t == builtins {
 				types[key] = append(types[key], Builtins...)
 			} else if t == numbers {
 				types[key] = append(types[key], Numbers...)
 			} else {
 				types[key] = append(types[key], t)
+
+				if ok1 && !strings.Contains(t, ".") {
+					t1, ok2 := changeCase(t, isUpper)
+					if ok2 {
+						if !isStringInSlice(keys, key1) {
+							keys = append(keys, key1)
+						}
+						types[key1] = append(types[key1], t1)
+					}
+				}
+
 			}
 		}
 	}
